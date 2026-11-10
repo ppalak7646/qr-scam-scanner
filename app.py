@@ -1,4 +1,6 @@
 
+import csv
+import io
 import streamlit as st
 import cv2
 import numpy as np
@@ -269,6 +271,23 @@ if st.session_state.scan_history:
         st.write(
             f"**{index}. {item['type']}** — {item['time']}"
         )
+            # DOWNLOAD SCAN REPORT
+    csv_buffer = io.StringIO()
+
+    csv_writer = csv.DictWriter(
+        csv_buffer,
+        fieldnames=["type", "time"]
+    )
+
+    csv_writer.writeheader()
+    csv_writer.writerows(st.session_state.scan_history)
+
+    st.download_button(
+        label="⬇️ Download Scan Report",
+        data=csv_buffer.getvalue(),
+        file_name="qr_scan_history.csv",
+        mime="text/csv"
+    )
 
     if st.button("🗑️ Clear History"):
         st.session_state.scan_history = []
