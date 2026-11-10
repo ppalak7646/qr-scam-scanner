@@ -179,17 +179,42 @@ if uploaded_file:
                     else:
                         st.info("No password found in this QR code.")
 
-                # OTHER QR CONTENT
-                else:
-                    st.subheader("Other QR Content Detected")
+                
+                # EMAIL QR CODE DETECTION
+                elif qr_data.lower().startswith("mailto:"):
+                    st.subheader("Email QR Code Detected")
 
-                    st.write("**QR Content:**")
-                    st.code(qr_data, language=None)
+                    email_data = urlparse(qr_data)
+                    email_address = email_data.path
+
+                    email_details = parse_qs(email_data.query)
+                    subject = email_details.get("subject", [""])[0]
+
+                    st.success("Email QR code successfully detected!")
+                    st.write("**Email Address:**", email_address)
+
+                    if subject:
+                        st.write("**Subject:**", subject)
 
                     st.info(
-                        "This QR code does not match the supported "
-                        "UPI, website, or Wi-Fi formats."
+                        "Check the email address carefully before "
+                        "sending any message."
                     )
+
+                # PHONE QR CODE DETECTION
+                elif qr_data.lower().startswith("tel:"):
+                    st.subheader("Phone QR Code Detected")
+
+                    phone_number = qr_data[4:].split("?")[0]
+
+                    st.success("Phone QR code successfully detected!")
+                    st.write("**Phone Number:**", phone_number)
+
+                    st.info(
+                        "Verify the number before making a call. "
+                        "This scanner will not place calls automatically."
+                    )
+
 
 
         except Exception as error:
