@@ -148,20 +148,47 @@ if uploaded_file:
                         "details on an unverified website."
                     )
 
-                # UNKNOWN QR TYPE
                 
-                # PLAIN TEXT QR CODE
-                else:
-                    st.subheader("Plain Text QR Detected")
+                # WIFI QR CODE DETECTION
+                elif qr_data.startswith("WIFI:"):
+                    st.subheader("Wi-Fi QR Code Detected")
 
-                    st.success("Normal text QR code detected!")
+                    wifi_data = {}
+
+                    raw_data = qr_data[5:].rstrip(";")
+
+                    for item in raw_data.split(";"):
+                        if ":" in item:
+                            key, value = item.split(":", 1)
+                            wifi_data[key] = value
+
+                    ssid = wifi_data.get("S", "Unknown")
+                    security = wifi_data.get("T", "Unknown")
+                    password = wifi_data.get("P", "")
+
+                    st.success("Wi-Fi QR code successfully detected!")
+
+                    st.write("**Network Name:**", ssid)
+                    st.write("**Security Type:**", security)
+
+                    if password:
+                        if st.checkbox("Show Wi-Fi password"):
+                            st.code(password)
+                        else:
+                            st.info("Wi-Fi password is hidden.")
+                    else:
+                        st.info("No password found in this QR code.")
+
+                # OTHER QR CONTENT
+                else:
+                    st.subheader("Other QR Content Detected")
 
                     st.write("**QR Content:**")
                     st.code(qr_data, language=None)
 
                     st.info(
-                        "This QR code contains text rather than "
-                        "a website URL or UPI payment link."
+                        "This QR code does not match the supported "
+                        "UPI, website, or Wi-Fi formats."
                     )
 
 
