@@ -149,9 +149,21 @@ if uploaded_file:
                     )
 
                 # UNKNOWN QR TYPE
+                
+                # PLAIN TEXT QR CODE
                 else:
-                    st.warning("Unknown QR code type detected.")
-                    st.write("QR Content:", qr_data)
+                    st.subheader("Plain Text QR Detected")
+
+                    st.success("Normal text QR code detected!")
+
+                    st.write("**QR Content:**")
+                    st.code(qr_data, language=None)
+
+                    st.info(
+                        "This QR code contains text rather than "
+                        "a website URL or UPI payment link."
+                    )
+
 
         except Exception as error:
             st.error("Could not process this QR image.")
