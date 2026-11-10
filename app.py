@@ -7,13 +7,16 @@ import tldextract
 
 from PIL import Image
 from urllib.parse import urlparse, parse_qs
+from datetime import datetime
 
 st.set_page_config(
     page_title="QR Scam Scanner",
     page_icon="🔐",
     layout="centered"
 )
-
+# SCAN HISTORY
+if "scan_history" not in st.session_state:
+    st.session_state.scan_history = []
 st.title("🔐 QR Scam Scanner")
 st.write("Scan QR codes and check for suspicious links or UPI payment details.")
 
@@ -88,6 +91,40 @@ if uploaded_file:
 
             else:
                 st.success("QR Code successfully scanned!")
+
+                # SAVE SCAN HISTORY
+                if qr_data.lower().startswith("upi://"):
+                    scan_type = "UPI"
+
+                elif qr_data.lower().startswith(("http://", "https://")):
+                    scan_type = "Website"
+
+                elif qr_data.upper().startswith("WIFI:"):
+                    scan_type = "Wi-Fi"
+
+                elif qr_data.lower().startswith("mailto:"):
+                    scan_type = "Email"
+
+                elif qr_data.lower().startswith("tel:"):
+                    scan_type = "Phone"
+
+                else:
+                    scan_type = "Other / Text"
+
+                st.session_state.scan_history.insert(
+                    0,
+                    {
+                        "type": scan_type,
+                        "time": datetime.now().strftime(
+                            "%d-%m-%Y %I:%M:%S %p"
+                        )
+                    }
+                )
+
+                st.session_state.scan_history = (
+                    st.session_state.scan_history[:20]
+                )
+
 
                 # UPI QR CODE CHECK
                 if qr_data.lower().startswith("upi://"):
@@ -220,3 +257,22 @@ if uploaded_file:
         except Exception as error:
             st.error("Could not process this QR image.")
             st.write("Error:", str(error))
+
+
+# SCAN HISTORY DISPLAY
+st.divider()
+st.subheader("📋 QR Scan History")
+
+if st.session_state.scan_history:
+
+    for index, item in enumerate(st.session_state.scan_history, 1):
+        st.write(
+            f"**{index}. {item['type']}** — {item['time']}"
+        )
+
+    if st.button("🗑️ Clear History"):
+        st.session_state.scan_history = []
+        st.rerun()
+
+else:
+    st.info("No scan history available yet.")
