@@ -165,14 +165,14 @@ if uploaded_file:
 
                     st.write("**Risk indicators:**", score)
 
-                    if score >= 2:
-                        st.error("Suspicious URL detected!")
+                    if score <= 1:
+                        st.success("🟢 Risk Level: Low")
+
+                    elif score <= 3:
+                        st.warning("🟡 Risk Level: Medium")
 
                     else:
-                        st.warning(
-                            "No obvious warning signs detected. "
-                            "This does not guarantee the website is safe."
-                        )
+                        st.error("🔴 Risk Level: High")
 
                     if reasons:
                         st.write("**Reasons:**")
